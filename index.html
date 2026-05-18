@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Center — Freelancer OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0b12;
+    --bg-card: #15151f;
+    --bg-card-hover: #1c1c28;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-strong: rgba(255, 255, 255, 0.14);
+    --text: #ededf3;
+    --text-dim: #8a8a9c;
+    --text-faint: #4a4a5c;
+
+    --violet: #a78bfa;
+    --violet-glow: rgba(167, 139, 250, 0.16);
+    --green: #6ee7b7;
+    --green-glow: rgba(110, 231, 183, 0.14);
+    --red: #fb7185;
+    --red-glow: rgba(251, 113, 133, 0.16);
+    --amber: #fbbf24;
+    --amber-glow: rgba(251, 191, 36, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+
+  body {
+    color: var(--text);
+    font-family: 'Fraunces', Georgia, serif;
+    min-height: 100vh;
+    padding: 36px 32px;
+    position: relative;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Atmospheric background layers */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 0%, rgba(167, 139, 250, 0.10), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 100%, rgba(110, 231, 183, 0.04), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: overlay;
+  }
+
+  .container {
+    position: relative;
+    z-index: 2;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ─────────────────────────────────────── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 32px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 300;
+    letter-spacing: -0.025em;
+    line-height: 1;
+  }
+  .header h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--violet);
+  }
+  .live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 var(--green);
+    animation: pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(110, 231, 183, 0.7); }
+    50%      { box-shadow: 0 0 0 8px rgba(110, 231, 183, 0); }
+  }
+
+  /* ── Grid 3×2 ───────────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 760px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+
+  /* ── Cards ──────────────────────────────────────── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.3s ease,
+                border-color 0.3s ease;
+    opacity: 0;
+    animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    cursor: default;
+  }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.13s; }
+  .card:nth-child(3) { animation-delay: 0.21s; }
+  .card:nth-child(4) { animation-delay: 0.29s; }
+  .card:nth-child(5) { animation-delay: 0.37s; }
+  .card:nth-child(6) { animation-delay: 0.45s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Inner radial glow keyed to status */
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 100% 0%, var(--card-glow, transparent) 0%, transparent 55%);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    background: var(--bg-card-hover);
+    border-color: var(--border-strong);
+  }
+
+  .card.violet { --card-glow: var(--violet-glow); }
+  .card.green  { --card-glow: var(--green-glow); }
+  .card.red    { --card-glow: var(--red-glow); }
+  .card.amber  { --card-glow: var(--amber-glow); }
+
+  /* Card label */
+  .card-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    position: relative;
+    z-index: 1;
+  }
+  .card-label::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+  .card.green  .card-label::before { background: var(--green);  box-shadow: 0 0 10px var(--green); }
+  .card.red    .card-label::before { background: var(--red);    box-shadow: 0 0 10px var(--red); }
+  .card.amber  .card-label::before { background: var(--amber);  box-shadow: 0 0 10px var(--amber); }
+  .card.violet .card-label::before { background: var(--violet); box-shadow: 0 0 10px var(--violet); }
+
+  /* Big numeric value */
+  .card-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 38px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 12px;
+    font-variant-numeric: tabular-nums;
+    position: relative;
+    z-index: 1;
+  }
+  .card.green .card-value { color: var(--green); }
+  .card.red   .card-value { color: var(--red); }
+
+  /* Subtle meta line */
+  .card-meta {
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--text-dim);
+    position: relative;
+    z-index: 1;
+  }
+  .card-meta .delta-up   { color: var(--green); font-style: normal; }
+  .card-meta .delta-down { color: var(--red);   font-style: normal; }
+
+  /* ── Footer ─────────────────────────────────────── */
+  .footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+  .footer .right { display: flex; gap: 20px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Command <em>Center</em></h1>
+      <div class="live-indicator">
+        <span class="live-dot"></span>
+        Live · May 2026
+      </div>
+    </header>
+
+    <div class="grid">
+      <article class="card green">
+        <div class="card-label">Net this month</div>
+        <div class="card-value" data-target="4287" data-prefix="€">€0</div>
+        <div class="card-meta"><span class="delta-up">↑ 18%</span> vs last month</div>
+      </article>
+
+      <article class="card violet">
+        <div class="card-label">Outstanding</div>
+        <div class="card-value" data-target="3150" data-prefix="€">€0</div>
+        <div class="card-meta">2 invoices pending</div>
+      </article>
+
+      <article class="card red">
+        <div class="card-label">Overdue</div>
+        <div class="card-value" data-target="890" data-prefix="€">€0</div>
+        <div class="card-meta">1 invoice · <span class="delta-down">7 days late</span></div>
+      </article>
+
+      <article class="card violet">
+        <div class="card-label">Active projects</div>
+        <div class="card-value" data-target="4">0</div>
+        <div class="card-meta">2 due this week</div>
+      </article>
+
+      <article class="card amber">
+        <div class="card-label">Tasks today</div>
+        <div class="card-value" data-target="7">0</div>
+        <div class="card-meta">3 high priority</div>
+      </article>
+
+      <article class="card violet">
+        <div class="card-label">Clients to follow up</div>
+        <div class="card-value" data-target="2">0</div>
+        <div class="card-meta">last contact &gt; 30 days</div>
+      </article>
+    </div>
+
+    <footer class="footer">
+      <span>Freelancer OS · Command Center</span>
+      <span class="right">
+        <span id="clock">--:--:--</span>
+        <span>Auto-refresh</span>
+      </span>
+    </footer>
+  </div>
+
+<script>
+  // ── Animated count-up on load ─────────────────────
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+  document.querySelectorAll('.card-value').forEach((el, i) => {
+    const target = parseInt(el.dataset.target, 10);
+    const prefix = el.dataset.prefix || '';
+    const duration = 1300;
+    const startDelay = 250 + i * 90;
+
+    setTimeout(() => {
+      const start = performance.now();
+      function frame(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const v = Math.floor(easeOut(t) * target);
+        const formatted = prefix === '€'
+          ? v.toLocaleString('fr-FR').replace(/\s/g, '\u202F') // thin nbsp
+          : v;
+        el.textContent = prefix + formatted;
+        if (t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }, startDelay);
+  });
+
+  // ── Live ticking clock in footer ──────────────────
+  const clock = document.getElementById('clock');
+  function tick() {
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    const ss = String(d.getSeconds()).padStart(2, '0');
+    clock.textContent = `${hh}:${mm}:${ss}`;
+  }
+  tick();
+  setInterval(tick, 1000);
+</script>
+</body>
+</html>
