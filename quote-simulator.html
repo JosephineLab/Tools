@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quote Simulator — Freelancer OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══ THEME — DARK (default) ═══ */
+:root {
+  --bg: #0b0b12;
+  --paper: #15151f;
+  --paper-2: #1c1c28;
+  --paper-3: #22222e;
+  --text: #ededf3;
+  --text-dim: #8a8a9c;
+  --text-faint: #5a5a6c;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --accent: #a78bfa;
+  --accent-soft: rgba(167, 139, 250, 0.13);
+  --accent-glow: rgba(167, 139, 250, 0.18);
+  --red: #fb7185;
+  --input-bg: #1c1c28;
+}
+[data-theme="light"] {
+  --bg: #f7f5f0;
+  --paper: #ffffff;
+  --paper-2: #fcfaf5;
+  --paper-3: #f3f0e8;
+  --text: #1a1814;
+  --text-dim: #6b6760;
+  --text-faint: #a8a39a;
+  --border: rgba(26, 24, 20, 0.10);
+  --border-strong: rgba(26, 24, 20, 0.22);
+  --accent: #6E56CF;
+  --accent-soft: rgba(110, 86, 207, 0.10);
+  --accent-glow: rgba(110, 86, 207, 0.16);
+  --red: #a8392f;
+  --input-bg: #fcfaf5;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); }
+body {
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  padding: 40px 28px;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.container { max-width: 820px; margin: 0 auto; }
+
+/* ═══ HEADER ═══ */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+  gap: 20px;
+}
+.header-text h1 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 48px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin-bottom: 10px;
+}
+.header-text h1 em { font-style: italic; color: var(--accent); }
+.header-text p { font-size: 14px; color: var(--text-dim); max-width: 460px; }
+
+.theme-toggle {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.theme-toggle svg { width: 16px; height: 16px; }
+[data-theme="dark"] .icon-moon { display: none; }
+[data-theme="light"] .icon-sun { display: none; }
+
+/* ═══ SECTION ═══ */
+.section { margin-bottom: 30px; }
+.section-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.2em;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+.section-title em { font-style: italic; color: var(--accent); }
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px 24px;
+}
+
+/* ═══ PICKERS ═══ */
+.pricing-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.pricing-opt {
+  padding: 14px 12px;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  color: var(--text);
+  font-family: inherit;
+}
+.pricing-opt:hover { border-color: var(--border-strong); }
+.pricing-opt strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.pricing-opt small {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+.pricing-opt.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.pricing-opt.active small { color: var(--accent); }
+.mode-hint {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--paper-2);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
+  font-family: 'Fraunces', serif;
+}
+
+.vat-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.vat-opt {
+  padding: 12px;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+}
+.vat-opt:hover { border-color: var(--border-strong); }
+.vat-opt small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 3px;
+  font-weight: 400;
+}
+.vat-opt.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.vat-opt.active small { color: var(--accent); }
+
+/* ═══ ROWS (table-like) ═══ */
+.rows-header {
+  display: grid;
+  grid-template-columns: 1fr 90px 110px 80px 110px 32px;
+  gap: 10px;
+  padding: 0 16px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-faint);
+}
+.rows-header-expense {
+  display: grid;
+  grid-template-columns: 110px 1fr 70px 110px 80px 110px 32px;
+  gap: 10px;
+  padding: 0 16px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-faint);
+}
+.rows-header > div, .rows-header-expense > div { padding: 0 4px; }
+.rows-header .right, .rows-header-expense .right { text-align: right; }
+
+.rows-container { display: flex; flex-direction: column; gap: 8px; }
+
+.row {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: 1fr 90px 110px 80px 110px 32px;
+  gap: 10px;
+  align-items: center;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+  max-height: 200px;
+  overflow: hidden;
+  animation: rowIn 0.3s ease;
+}
+.row-expense {
+  display: grid;
+  grid-template-columns: 110px 1fr 70px 110px 80px 110px 32px;
+  gap: 10px;
+}
+.row.removing {
+  max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
+  margin-top: -8px; border-width: 0;
+}
+@keyframes rowIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.row input, .row select {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 9px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+}
+.row input:focus, .row select:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--paper-3);
+}
+.row input[type="number"] {
+  font-family: 'JetBrains Mono', monospace;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.row select { cursor: pointer; }
+
+.vat-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 8px;
+}
+.vat-cell input {
+  border: none !important;
+  background: transparent !important;
+  padding: 7px 2px !important;
+  width: 100%;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: right;
+}
+.vat-cell input:focus { background: transparent !important; }
+.vat-cell span { font-size: 12px; color: var(--text-dim); }
+.vat-cell.disabled { opacity: 0.4; }
+.vat-cell.disabled input { pointer-events: none; }
+
+.vat-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 4px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  user-select: none;
+  transition: all 0.2s ease;
+}
+.vat-check.active { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.vat-check input { display: none; }
+
+.row-total {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  text-align: right;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  padding: 7px 9px;
+}
+
+.row-remove {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  transition: all 0.2s ease;
+  justify-self: end;
+}
+.row-remove:hover { color: var(--red); border-color: var(--red); }
+
+.add-row-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+  border-radius: 10px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+.add-row-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-faint);
+  font-style: italic;
+  font-family: 'Fraunces', serif;
+  font-size: 13px;
+}
+
+/* ═══ SETTINGS ═══ */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.settings-row-flat {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--border-strong);
+}
+.settings-row-flat.show { display: grid; }
+
+.setting { display: flex; flex-direction: column; gap: 6px; }
+.setting label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.setting input, .setting select {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.2s ease;
+}
+.setting input:focus, .setting select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.auto-tag {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.computed-value {
+  background: var(--paper-3);
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  min-height: 41px;
+}
+.computed-value .unit { color: var(--text-dim); font-size: 12px; }
+.computed-value.empty { color: var(--text-faint); font-style: italic; font-family: 'Fraunces', serif; font-size: 13px; }
+
+/* ═══ SUMMARY ═══ */
+.summary-card {
+  background: var(--paper);
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  padding: 28px 30px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.summary-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top right, var(--accent-glow), transparent 60%);
+  pointer-events: none;
+}
+.summary-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  margin-bottom: 18px;
+  position: relative;
+}
+.summary-lines {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  position: relative;
+}
+.summary-lines .label { color: var(--text-dim); }
+.summary-lines .value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.summary-lines .ttc-label {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--text);
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+}
+.summary-lines .ttc-value {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  color: var(--accent);
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.summary-lines .sub-label { color: var(--text-faint); font-size: 12px; padding-left: 16px; }
+.summary-lines .sub-value { color: var(--text-faint); font-size: 12px; }
+
+/* ═══ NOTE ═══ */
+.note {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-faint);
+  line-height: 1.7;
+}
+
+/* ═══ MOBILE ═══ */
+@media (max-width: 640px) {
+  body { padding: 24px 16px; }
+  .header-text h1 { font-size: 36px; }
+  .pricing-picker { grid-template-columns: 1fr; }
+  .vat-toggle { grid-template-columns: 1fr; }
+  .settings-grid { grid-template-columns: 1fr; }
+  .settings-row-flat.show { grid-template-columns: 1fr; }
+
+  .rows-header, .rows-header-expense { display: none; }
+  .row, .row-expense {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 14px;
+    background: var(--paper-2);
+  }
+  .row-expense { grid-template-columns: 1fr 1fr; }
+  .row > *, .row-expense > * { position: relative; }
+  .row > *::before, .row-expense > *::before {
+    content: attr(data-label);
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+    margin-bottom: 3px;
+  }
+  .row .desc, .row-expense .desc { grid-column: 1 / -1; }
+  .row-remove, .row-expense .row-remove {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: auto;
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 4px;
+  }
+  .summary-lines { font-size: 13px; }
+  .summary-lines .ttc-value { font-size: 24px; }
+  .summary-card { padding: 22px; }
+}
+</style>
+</head>
+<body data-theme="dark">
+<div class="container">
+
+  <header class="header">
+    <div class="header-text">
+      <h1>Quote <em>Simulator</em></h1>
+      <p>Mentally test a quote before sending it. No persistence, no export — just a tool to think with.</p>
+    </div>
+    <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </header>
+
+  <!-- ═══ 01 PRICING MODEL ═══ -->
+  <section class="section">
+    <div class="section-num">01 / PRICING MODEL</div>
+    <h2 class="section-title">Billing model</h2>
+    <div class="pricing-picker">
+      <button class="pricing-opt active" data-mode="hourly">
+        <strong>Hourly</strong>
+        <small>Hours × rate</small>
+      </button>
+      <button class="pricing-opt" data-mode="daily">
+        <strong>Daily</strong>
+        <small>Days × rate</small>
+      </button>
+      <button class="pricing-opt" data-mode="flat">
+        <strong>Flat fee</strong>
+        <small>Fixed price</small>
+      </button>
+    </div>
+    <p class="mode-hint" id="mode-hint">Best for open scope, exploration, ad-hoc support — the client pays for actual time spent.</p>
+  </section>
+
+  <!-- ═══ 02 VAT REGIME ═══ -->
+  <section class="section">
+    <div class="section-num">02 / VAT REGIME</div>
+    <h2 class="section-title">Your VAT regime</h2>
+    <div class="vat-toggle">
+      <button class="vat-opt active" data-vat="with">With VAT<small>SASU, EURL, or micro above threshold</small></button>
+      <button class="vat-opt" data-vat="without">No VAT<small>Base exemption (micro below threshold)</small></button>
+    </div>
+  </section>
+
+  <!-- ═══ 03 SERVICES ═══ -->
+  <section class="section">
+    <div class="section-num">03 / SERVICES</div>
+    <h2 class="section-title">Service <em>line items</em></h2>
+
+    <div class="rows-header">
+      <div>Description</div>
+      <div class="right" id="qty-label">Hours</div>
+      <div class="right">Unit price (excl.)</div>
+      <div class="right">VAT %</div>
+      <div class="right">Total (excl.)</div>
+      <div></div>
+    </div>
+    <div class="rows-container" id="items-container"></div>
+    <button class="add-row-btn" id="add-item">+ Add a service line</button>
+  </section>
+
+  <!-- ═══ 04 EXPENSES ═══ -->
+  <section class="section">
+    <div class="section-num">04 / REIMBURSED EXPENSES</div>
+    <h2 class="section-title">Expenses (travel, purchases…)</h2>
+
+    <div class="rows-header-expense">
+      <div>Type</div>
+      <div>Description</div>
+      <div class="right">Qty</div>
+      <div class="right">Unit price</div>
+      <div class="right">VAT?</div>
+      <div class="right">Total</div>
+      <div></div>
+    </div>
+    <div class="rows-container" id="expenses-container">
+      <p class="empty-state">No expenses — add a line if you're invoicing travel, materials, or other</p>
+    </div>
+    <button class="add-row-btn" id="add-expense">+ Add an expense</button>
+  </section>
+
+  <!-- ═══ 05 SETTINGS ═══ -->
+  <section class="section">
+    <div class="section-num">05 / SETTINGS</div>
+    <h2 class="section-title">Global settings</h2>
+    <div class="card">
+      <div class="settings-grid">
+        <div class="setting">
+          <label>Global discount (%)</label>
+          <input type="number" id="discount" min="0" max="100" step="1" value="0">
+        </div>
+        <div class="setting">
+          <label>Deposit (%)</label>
+          <input type="number" id="deposit" min="0" max="100" step="5" value="30">
+        </div>
+        <div class="setting">
+          <label>Payment terms</label>
+          <select id="payment-days">
+            <option value="0">On signing</option>
+            <option value="15">15 days</option>
+            <option value="30" selected>30 days</option>
+            <option value="45">45 days</option>
+            <option value="60">60 days</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-row-flat" id="flat-row">
+        <div class="setting">
+          <label>Estimated hours (project)</label>
+          <input type="number" id="est-hours" min="0" step="1" value="0" placeholder="e.g. 40">
+        </div>
+        <div class="setting">
+          <label>Gross hourly rate <span class="auto-tag">AUTO</span></label>
+          <div class="computed-value empty" id="gross-rate">Enter hours to compute</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 06 SUMMARY ═══ -->
+  <section class="section">
+    <div class="summary-card">
+      <div class="summary-label">Quote summary</div>
+      <div class="summary-lines" id="summary-lines"></div>
+    </div>
+  </section>
+
+  <p class="note">
+    Estimator only — meant to think through a quote before sending. For an actual invoice to deliver to a client, use proper invoicing software (Tiime, Indy, Henrri, or your accountant's tool). Base VAT exemption applies under thresholds (e.g. €36,800 services in France, 2024).
+  </p>
+
+</div>
+
+<script>
+// ═══ STATE ═══
+const state = {
+  theme: 'dark',
+  pricingModel: 'hourly',
+  vatRegime: 'with',
+  items: [
+    { id: 1, description: 'Concept & design', qty: 8, unitPrice: 80, vatRate: 20 },
+    { id: 2, description: 'Development', qty: 16, unitPrice: 75, vatRate: 20 },
+  ],
+  expenses: [],
+  settings: {
+    discount: 0,
+    deposit: 30,
+    paymentDays: 30,
+    estHours: 0,
+  },
+};
+
+let nextItemId = 3;
+let nextExpenseId = 1;
+
+const MODE_HINTS = {
+  hourly: "Best for open scope, exploration, ad-hoc support — the client pays for actual time spent.",
+  daily: "Standard in consulting & dev — long missions, predictable duration. Your day rate should include time off and overhead.",
+  flat: "Commit to a price for a defined deliverable. You win if you go fast, you lose if you under-estimate.",
+};
+const QTY_LABELS = { hourly: 'Hours', daily: 'Days', flat: 'Quantity' };
+const DESC_PLACEHOLDERS = {
+  hourly: 'e.g. Frontend development',
+  daily: 'e.g. Strategic consulting',
+  flat: 'e.g. Complete landing page',
+};
+
+const EXPENSE_TYPES = [
+  { value: 'km', label: 'Mileage (km)', defaultPrice: 0.60 },
+  { value: 'meal', label: 'Meal', defaultPrice: 0 },
+  { value: 'hotel', label: 'Hotel night', defaultPrice: 0 },
+  { value: 'transport', label: 'Train / Plane', defaultPrice: 0 },
+  { value: 'material', label: 'Materials / Purchases', defaultPrice: 0 },
+  { value: 'other', label: 'Other', defaultPrice: 0 },
+];
+
+const fmt = (n) => Math.round(n).toLocaleString('en-US');
+const fmt2 = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+// ═══ COMPUTE ═══
+function compute() {
+  const noVat = state.vatRegime === 'without';
+
+  const itemsHT = state.items.reduce((sum, it) => sum + (it.qty * it.unitPrice), 0);
+  const expensesHT = state.expenses.reduce((sum, ex) => sum + (ex.qty * ex.unitPrice), 0);
+
+  const discount = itemsHT * (state.settings.discount / 100);
+  const itemsAfterDiscount = itemsHT - discount;
+  const totalHT = itemsAfterDiscount + expensesHT;
+
+  // VAT breakdown
+  const vatByRate = {};
+  let totalVAT = 0;
+  if (!noVat) {
+    state.items.forEach(it => {
+      const base = it.qty * it.unitPrice * (1 - state.settings.discount / 100);
+      const v = base * it.vatRate / 100;
+      vatByRate[it.vatRate] = (vatByRate[it.vatRate] || 0) + v;
+      totalVAT += v;
+    });
+    state.expenses.forEach(ex => {
+      if (ex.applyVat) {
+        const base = ex.qty * ex.unitPrice;
+        const v = base * ex.vatRate / 100;
+        vatByRate[ex.vatRate] = (vatByRate[ex.vatRate] || 0) + v;
+        totalVAT += v;
+      }
+    });
+  }
+
+  const totalTTC = totalHT + totalVAT;
+  const depositAmount = totalTTC * (state.settings.deposit / 100);
+  const balanceAmount = totalTTC - depositAmount;
+
+  // Gross hourly rate (flat mode only): based on services after discount
+  const grossHourly = (state.pricingModel === 'flat' && state.settings.estHours > 0)
+    ? itemsAfterDiscount / state.settings.estHours
+    : null;
+
+  return {
+    itemsHT, expensesHT, discount, itemsAfterDiscount,
+    totalHT, totalVAT, totalTTC,
+    vatByRate, depositAmount, balanceAmount,
+    grossHourly, noVat,
+  };
+}
+
+// ═══ RENDER ITEMS ═══
+function renderItems() {
+  const container = document.getElementById('items-container');
+  container.innerHTML = '';
+  state.items.forEach(item => container.appendChild(buildItemRow(item)));
+}
+
+function buildItemRow(item) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.id = `item-${item.id}`;
+  const vatDisabled = state.vatRegime === 'without';
+
+  row.innerHTML = `
+    <div class="desc" data-label="Description">
+      <input type="text" data-field="description" value="${escapeHtml(item.description)}" placeholder="${DESC_PLACEHOLDERS[state.pricingModel]}">
+    </div>
+    <div data-label="${QTY_LABELS[state.pricingModel]}">
+      <input type="number" data-field="qty" value="${item.qty}" min="0" step="0.5">
+    </div>
+    <div data-label="Unit price">
+      <input type="number" data-field="unitPrice" value="${item.unitPrice}" min="0" step="1">
+    </div>
+    <div data-label="VAT %">
+      <div class="vat-cell ${vatDisabled ? 'disabled' : ''}">
+        <input type="number" data-field="vatRate" value="${vatDisabled ? 0 : item.vatRate}" min="0" max="100" step="0.5" ${vatDisabled ? 'disabled' : ''}>
+        <span>%</span>
+      </div>
+    </div>
+    <div class="row-total" data-label="Total">€${fmt(item.qty * item.unitPrice)}</div>
+    <button class="row-remove" title="Remove">×</button>
+  `;
+
+  row.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const field = e.target.dataset.field;
+      const val = field === 'description' ? e.target.value : parseFloat(e.target.value) || 0;
+      item[field] = val;
+      if (field === 'qty' || field === 'unitPrice') {
+        row.querySelector('.row-total').textContent = `€${fmt(item.qty * item.unitPrice)}`;
+      }
+      renderSummary();
+    });
+  });
+
+  row.querySelector('.row-remove').addEventListener('click', () => removeItem(item.id));
+  return row;
+}
+
+function addItem() {
+  const item = { id: nextItemId++, description: '', qty: 1, unitPrice: 0, vatRate: 20 };
+  state.items.push(item);
+  document.getElementById('items-container').appendChild(buildItemRow(item));
+  renderSummary();
+}
+
+function removeItem(id) {
+  const row = document.getElementById(`item-${id}`);
+  row.classList.add('removing');
+  setTimeout(() => {
+    state.items = state.items.filter(i => i.id !== id);
+    row.remove();
+    renderSummary();
+  }, 300);
+}
+
+// ═══ RENDER EXPENSES ═══
+function renderExpenses() {
+  const container = document.getElementById('expenses-container');
+  container.innerHTML = '';
+  if (state.expenses.length === 0) {
+    container.innerHTML = '<p class="empty-state">No expenses — add a line if you\'re invoicing travel, materials, or other</p>';
+    return;
+  }
+  state.expenses.forEach(ex => container.appendChild(buildExpenseRow(ex)));
+}
+
+function buildExpenseRow(ex) {
+  const row = document.createElement('div');
+  row.className = 'row row-expense';
+  row.id = `expense-${ex.id}`;
+  const vatDisabled = state.vatRegime === 'without';
+
+  const typeOptions = EXPENSE_TYPES.map(t =>
+    `<option value="${t.value}" ${t.value === ex.type ? 'selected' : ''}>${t.label}</option>`
+  ).join('');
+
+  row.innerHTML = `
+    <div data-label="Type">
+      <select data-field="type">${typeOptions}</select>
+    </div>
+    <div class="desc" data-label="Description">
+      <input type="text" data-field="description" value="${escapeHtml(ex.description)}" placeholder="${ex.type === 'km' ? 'e.g. Round trip to client' : 'e.g. ...'}">
+    </div>
+    <div data-label="Qty">
+      <input type="number" data-field="qty" value="${ex.qty}" min="0" step="1">
+    </div>
+    <div data-label="Unit price">
+      <input type="number" data-field="unitPrice" value="${ex.unitPrice}" min="0" step="0.10">
+    </div>
+    <div data-label="VAT?">
+      <label class="vat-check ${ex.applyVat && !vatDisabled ? 'active' : ''} ${vatDisabled ? 'disabled' : ''}">
+        <input type="checkbox" data-field="applyVat" ${ex.applyVat ? 'checked' : ''} ${vatDisabled ? 'disabled' : ''}>
+        ${ex.applyVat && !vatDisabled ? '✓ ' + ex.vatRate + '%' : '—'}
+      </label>
+    </div>
+    <div class="row-total" data-label="Total">€${fmt(ex.qty * ex.unitPrice)}</div>
+    <button class="row-remove" title="Remove">×</button>
+  `;
+
+  row.querySelectorAll('input, select').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const field = e.target.dataset.field;
+      if (field === 'type') {
+        ex.type = e.target.value;
+        const preset = EXPENSE_TYPES.find(t => t.value === ex.type);
+        if (preset && ex.unitPrice === 0 && preset.defaultPrice > 0) {
+          ex.unitPrice = preset.defaultPrice;
+          row.querySelector('[data-field="unitPrice"]').value = preset.defaultPrice;
+          row.querySelector('.row-total').textContent = `€${fmt(ex.qty * ex.unitPrice)}`;
+        }
+      } else if (field === 'applyVat') {
+        ex.applyVat = e.target.checked;
+        renderExpenses();
+        renderSummary();
+        return;
+      } else if (field === 'description') {
+        ex.description = e.target.value;
+      } else {
+        ex[field] = parseFloat(e.target.value) || 0;
+      }
+      if (field === 'qty' || field === 'unitPrice') {
+        row.querySelector('.row-total').textContent = `€${fmt(ex.qty * ex.unitPrice)}`;
+      }
+      renderSummary();
+    });
+  });
+
+  row.querySelector('.row-remove').addEventListener('click', () => removeExpense(ex.id));
+  return row;
+}
+
+function addExpense() {
+  const ex = { id: nextExpenseId++, type: 'km', description: '', qty: 0, unitPrice: 0.60, vatRate: 20, applyVat: true };
+  state.expenses.push(ex);
+  renderExpenses();
+  renderSummary();
+}
+
+function removeExpense(id) {
+  const row = document.getElementById(`expense-${id}`);
+  row.classList.add('removing');
+  setTimeout(() => {
+    state.expenses = state.expenses.filter(e => e.id !== id);
+    renderExpenses();
+    renderSummary();
+  }, 300);
+}
+
+// ═══ RENDER SUMMARY ═══
+function renderSummary() {
+  const r = compute();
+  const lines = document.getElementById('summary-lines');
+
+  let html = `
+    <div class="label">Services (excl. VAT)</div>
+    <div class="value">€${fmt(r.itemsHT)}</div>
+  `;
+
+  if (r.discount > 0) {
+    html += `
+      <div class="label">Discount (-${state.settings.discount}%)</div>
+      <div class="value" style="color: var(--red);">−€${fmt(r.discount)}</div>
+    `;
+  }
+
+  if (r.expensesHT > 0) {
+    html += `
+      <div class="label">Expenses (excl. VAT)</div>
+      <div class="value">€${fmt(r.expensesHT)}</div>
+    `;
+  }
+
+  if (!r.noVat) {
+    html += `
+      <div class="label">Total (excl. VAT)</div>
+      <div class="value"><strong>€${fmt(r.totalHT)}</strong></div>
+    `;
+    Object.keys(r.vatByRate).sort().forEach(rate => {
+      if (r.vatByRate[rate] > 0.01) {
+        html += `
+          <div class="sub-label">VAT ${rate}%</div>
+          <div class="sub-value">€${fmt(r.vatByRate[rate])}</div>
+        `;
+      }
+    });
+  }
+
+  html += `
+    <div class="ttc-label">${r.noVat ? 'Total to invoice' : 'Total (incl. VAT)'}</div>
+    <div class="ttc-value">€${fmt(r.totalTTC)}</div>
+  `;
+
+  if (state.settings.deposit > 0 && r.totalTTC > 0) {
+    html += `
+      <div class="sub-label" style="margin-top: 8px;">Deposit ${state.settings.deposit}% on signing</div>
+      <div class="sub-value" style="margin-top: 8px;">€${fmt(r.depositAmount)}</div>
+      <div class="sub-label">Balance in ${state.settings.paymentDays} days</div>
+      <div class="sub-value">€${fmt(r.balanceAmount)}</div>
+    `;
+  }
+
+  lines.innerHTML = html;
+
+  // Gross hourly rate (flat mode)
+  const grossEl = document.getElementById('gross-rate');
+  if (r.grossHourly !== null) {
+    grossEl.classList.remove('empty');
+    grossEl.innerHTML = `€${fmt2(r.grossHourly)}<span class="unit">/h</span>`;
+  } else {
+    grossEl.classList.add('empty');
+    grossEl.textContent = 'Enter hours to compute';
+  }
+}
+
+// ═══ WIRE GLOBAL CONTROLS ═══
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  document.body.dataset.theme = state.theme;
+});
+
+document.querySelectorAll('.pricing-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.pricing-opt').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    state.pricingModel = opt.dataset.mode;
+    document.getElementById('mode-hint').textContent = MODE_HINTS[state.pricingModel];
+    document.getElementById('qty-label').textContent = QTY_LABELS[state.pricingModel];
+    document.getElementById('flat-row').classList.toggle('show', state.pricingModel === 'flat');
+    document.querySelectorAll('#items-container input[data-field="description"]').forEach(inp => {
+      inp.placeholder = DESC_PLACEHOLDERS[state.pricingModel];
+    });
+    renderSummary();
+  });
+});
+
+document.querySelectorAll('.vat-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.vat-opt').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    state.vatRegime = opt.dataset.vat;
+    renderItems();
+    renderExpenses();
+    renderSummary();
+  });
+});
+
+['discount', 'deposit', 'payment-days', 'est-hours'].forEach(id => {
+  const el = document.getElementById(id);
+  const key = id === 'payment-days' ? 'paymentDays' : id === 'est-hours' ? 'estHours' : id;
+  el.addEventListener('input', () => {
+    state.settings[key] = parseFloat(el.value) || 0;
+    renderSummary();
+  });
+});
+
+document.getElementById('add-item').addEventListener('click', addItem);
+document.getElementById('add-expense').addEventListener('click', addExpense);
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ═══ INIT ═══
+renderItems();
+renderExpenses();
+renderSummary();
+</script>
+</body>
+</html>
