@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Today — Freelancer OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══ THEME — DARK (default) ═══ */
+:root {
+  --bg: #0b0b12;
+  --paper: #15151f;
+  --paper-2: #1c1c28;
+  --text: #ededf3;
+  --text-dim: #8a8a9c;
+  --text-faint: #5a5a6c;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --accent: #a78bfa;
+  --accent-soft: rgba(167, 139, 250, 0.13);
+  --accent-glow: rgba(167, 139, 250, 0.18);
+}
+[data-theme="light"] {
+  --bg: #f7f5f0;
+  --paper: #ffffff;
+  --paper-2: #fcfaf5;
+  --text: #1a1814;
+  --text-dim: #6b6760;
+  --text-faint: #a8a39a;
+  --border: rgba(26, 24, 20, 0.10);
+  --border-strong: rgba(26, 24, 20, 0.22);
+  --accent: #6E56CF;
+  --accent-soft: rgba(110, 86, 207, 0.10);
+  --accent-glow: rgba(110, 86, 207, 0.16);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); }
+body {
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  padding: 32px 24px;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  transition: background 0.3s ease, color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container { width: 100%; max-width: 540px; }
+
+/* ═══ CARD ═══ */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px 36px;
+  position: relative;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* ═══ THEME TOGGLE ═══ */
+.theme-toggle {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: var(--paper-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s ease;
+}
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.theme-toggle svg { width: 14px; height: 14px; }
+[data-theme="dark"] .icon-moon { display: none; }
+[data-theme="light"] .icon-sun { display: none; }
+
+/* ═══ DATE LAYOUT ═══ */
+.year {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-faint);
+  letter-spacing: 0.32em;
+  margin-bottom: 14px;
+}
+
+.date {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.0;
+  color: var(--text);
+}
+.date .weekday {
+  display: block;
+  font-size: 28px;
+  margin-bottom: 6px;
+  color: var(--text-dim);
+}
+.date .main {
+  display: block;
+  font-size: 58px;
+}
+.date .day-num {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.meta {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.meta .dot {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  flex-shrink: 0;
+}
+.meta .quarter {
+  margin-left: auto;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 480px) {
+  body { padding: 20px 16px; }
+  .card { padding: 26px 24px; }
+  .date .main { font-size: 44px; }
+  .date .weekday { font-size: 22px; }
+  .meta { font-size: 9px; gap: 10px; letter-spacing: 0.14em; }
+}
+</style>
+</head>
+<body data-theme="dark">
+  <div class="container">
+    <div class="card">
+      <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+
+      <div class="year" id="year">— — — —</div>
+      <div class="date">
+        <span class="weekday" id="weekday">—</span>
+        <span class="main">
+          <span id="month">—</span>
+          <span class="day-num" id="day-num">—</span>
+        </span>
+      </div>
+      <div class="meta">
+        <span id="day-of-year">DAY —</span>
+        <span class="dot"></span>
+        <span id="week-num">WEEK —</span>
+        <span class="quarter" id="quarter">Q—</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ═══ DATE COMPUTE ═══
+function renderDate() {
+  const now = new Date();
+  const weekdays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  document.getElementById('year').textContent = String(now.getFullYear()).split('').join(' ');
+  document.getElementById('weekday').textContent = weekdays[now.getDay()] + ',';
+  document.getElementById('month').textContent = months[now.getMonth()];
+  document.getElementById('day-num').textContent = now.getDate();
+
+  // Day of year
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+  const dayOfYear = Math.floor(diff / 86400000);
+  document.getElementById('day-of-year').textContent = `DAY ${dayOfYear}`;
+
+  // ISO week number
+  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNum = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  document.getElementById('week-num').textContent = `WEEK ${weekNum}`;
+
+  // Quarter
+  const q = Math.floor(now.getMonth() / 3) + 1;
+  document.getElementById('quarter').textContent = `Q${q}`;
+}
+
+// ═══ THEME ═══
+const themeBtn = document.getElementById('theme-toggle');
+themeBtn.addEventListener('click', () => {
+  const current = document.body.dataset.theme;
+  document.body.dataset.theme = current === 'dark' ? 'light' : 'dark';
+});
+
+// ═══ INIT ═══
+renderDate();
+</script>
+</body>
+</html>
