@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caption Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FAF7EC; --card:#FFFFFF; --ink:#2F3B38; --muted:#7E8A80; --line:#E6E9DA;
+  --c1:#93CCEA; --c2:#AEDEDC; --c3:#EFF2D2; --accent:#3E7F8C; --accent-soft:#DDEFF1;
+  --ok:#5E9E7A; --warn:#C8923B; --over:#C25B4A;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--cream);color:var(--ink);
+  font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:15px;line-height:1.45}
+.wrap{max-width:900px;margin:0 auto;padding:20px 16px 28px}
+.hero{border-radius:22px;padding:22px 24px;
+  background:linear-gradient(118deg,#C7E4F1 0%,#D3ECE8 50%,#F4F5E3 100%)}
+.hero h1{margin:0 0 4px;font-size:26px;font-weight:650;letter-spacing:-.01em}
+.hero p{margin:0;color:#4F625E}
+.tabs{display:flex;gap:8px;margin:16px 0 0}
+.tab{font:inherit;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--ink);
+  border-radius:999px;padding:8px 16px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:14px}
+@media (max-width:720px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.card h2{margin:0 0 10px;font-size:16px;font-weight:650}
+textarea{width:100%;min-height:260px;resize:vertical;font:inherit;color:var(--ink);background:#FCFDF8;
+  border:1px solid var(--line);border-radius:12px;padding:12px 13px;outline:none}
+textarea:focus{border-color:var(--c1);box-shadow:0 0 0 3px var(--accent-soft)}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{background:var(--cream);border-radius:999px;padding:5px 11px;font-size:13px}
+.pill b{font-variant-numeric:tabular-nums}
+.row{margin:0 0 12px}
+.row .top{display:flex;justify-content:space-between;font-size:13.5px}
+.row .top span:last-child{color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:999px;background:#EEF1E6;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;width:0;border-radius:999px;background:var(--ok);transition:width .15s}
+.row.warn .bar i{background:var(--warn)} .row.over .bar i{background:var(--over)}
+.row.over .top span:last-child{color:var(--over);font-weight:600}
+.preview{margin-top:14px;background:var(--cream);border-radius:12px;padding:10px 12px;font-size:13.5px}
+.preview small{display:block;color:var(--muted);margin-bottom:3px}
+.preview .more{color:var(--muted)}
+.big{font-size:38px;font-weight:650;letter-spacing:-.02em;margin:0}
+.sub{color:var(--muted);font-size:14px}
+.speeds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.speed{background:var(--cream);border-radius:12px;padding:10px;text-align:center;cursor:pointer;border:2px solid transparent}
+.speed.on{border-color:var(--accent)}
+.speed b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+.speed span{font-size:12px;color:var(--muted)}
+.fits{list-style:none;padding:0;margin:0}
+.fits li{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--line);font-size:13.5px}
+.fits li em{font-style:normal;font-weight:600}
+.yes{color:var(--ok)} .no{color:var(--over)}
+.note{margin-top:14px;font-size:12px;color:var(--muted);background:var(--cream);border-radius:12px;padding:10px 12px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>Caption Checker</h1>
+    <p>Paste a caption to see how it fits each network — emoji, hashtags and links counted the way the apps count them.</p>
+  </div>
+
+  <section id="caption" class="grid" style="margin-top:16px">
+    <div class="card">
+      <h2>Your caption</h2>
+      <textarea id="cap" placeholder="Paste or write your caption here — hook first, then the story, then the call to action. #hashtags @mentions welcome."></textarea>
+      <div class="stats">
+        <span class="pill"><b id="cChars">0</b> characters<span id="cCharsNote" style="color:var(--muted)"></span></span>
+        <span class="pill"><b id="cWords">0</b> words</span>
+        <span class="pill"><b id="cTags">0</b> hashtags</span>
+        <span class="pill"><b id="cMent">0</b> mentions</span>
+        <span class="pill"><b id="cEmoji">0</b> emoji</span>
+      </div>
+      <div class="preview">
+        <small>What people see before “…more” (≈125 characters on Instagram)</small>
+        <span id="cPrev">Your first line shows here.</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Fits on…</h2>
+      <div id="limits"></div>
+      <div class="note" id="tagNote"></div>
+      <div class="note">Counted the way the apps count: an emoji usually costs 2 characters (flags and family emoji more). On X, every link costs 23 and every emoji 2. Limits checked October 2026 — if a network changes its rules, trust the app.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+// Limits checked October 2026. mode: "unicode" = counted like the apps (an emoji is 2+), "x" = X's weighted count (emoji 2, link 23).
+const LIMITS = [
+  ["Instagram caption", 2200, "unicode", 5],
+  ["TikTok caption", 4000, "unicode"],
+  ["YouTube title", 100, "unicode"],
+  ["YouTube description", 5000, "unicode"],
+  ["LinkedIn post", 3000, "unicode"],
+  ["Facebook post", 63206, "unicode"],
+  ["X post (free account)", 280, "x"],
+  ["Threads post", 500, "unicode"],
+  ["Pinterest description", 500, "unicode"],
+];
+const seg = (typeof Intl !== "undefined" && Intl.Segmenter) ? new Intl.Segmenter() : null;
+const graphemes = s => seg ? [...seg.segment(s)].map(g => g.segment) : [...s];
+const isEmoji = g => /\p{Extended_Pictographic}|\p{Regional_Indicator}/u.test(g);
+const URL_RE = /https?:\/\/\S+|www\.\S+/gi;
+// what most apps count: UTF-16 length (an emoji usually costs 2, flags & families more)
+const unicodeLen = s => s.length;
+// X: links = 23, each emoji = 2, everything else 1 per character
+const xLen = s => {
+  let n = 0;
+  const links = s.match(URL_RE) || [];
+  n += links.length * 23;
+  for (const g of graphemes(s.replace(URL_RE, ""))) n += isEmoji(g) ? 2 : 1;
+  return n;
+};
+const words = s => (s.trim().match(/\S+/g) || []).length;
+
+function renderCaption(){
+  const t = $("cap").value;
+  const visible = graphemes(t).length;
+  const counted = unicodeLen(t);
+  $("cChars").textContent = counted.toLocaleString("en-US");
+  $("cCharsNote").textContent = counted !== visible ? ` (${visible.toLocaleString("en-US")} you can see — emoji cost extra)` : "";
+  $("cWords").textContent = words(t);
+  const tags = (t.match(/#[\p{L}\p{N}_]+/gu) || []).length;
+  $("cTags").textContent = tags;
+  $("cMent").textContent = (t.match(/@[\w.]+/g) || []).length;
+  $("cEmoji").textContent = graphemes(t).filter(isEmoji).length;
+  const first = t.trim();
+  if (!first) $("cPrev").textContent = "Your first line shows here.";
+  else {
+    const g = graphemes(first);
+    const cut = g.slice(0,125).join("");
+    $("cPrev").innerHTML = "";
+    $("cPrev").append(document.createTextNode(cut.split("\n")[0]));
+    if (g.length > 125 || cut.includes("\n")) {
+      const m = document.createElement("span"); m.className = "more"; m.textContent = " …more"; $("cPrev").append(m);
+    }
+  }
+  $("limits").innerHTML = LIMITS.map(([label, lim, mode, tagMax]) => {
+    const n = mode === "x" ? xLen(t) : counted;
+    const tagOver = tagMax && tags > tagMax;
+    const r = n / lim, cls = (r > 1 || tagOver) ? "over" : r > .9 ? "warn" : "";
+    const left = lim - n;
+    const txt = tagOver ? `${tags} hashtags — max ${tagMax}`
+      : left >= 0 ? left.toLocaleString("en-US") + " left" : Math.abs(left).toLocaleString("en-US") + " over";
+    return `<div class="row ${cls}"><div class="top"><span>${label}</span><span>${txt}</span></div><div class="bar"><i style="width:${Math.min(100, r*100)}%"></i></div></div>`;
+  }).join("");
+  $("tagNote").textContent = tags > 5
+    ? "Instagram now allows 5 hashtags per post (caption and comments together) — keep your 5 most precise ones."
+    : "Hashtags: Instagram allows 5 per post. A few precise ones beat generic ones on every network.";
+}
+$("cap").addEventListener("input", renderCaption);
+renderCaption();
+</script>
+</body>
+</html>
